@@ -1,0 +1,3 @@
+/Users/ezrakahn/CLionProjects/interpreter/cmake-build-debug/CMakeFiles/interpreter.dir
+/Users/ezrakahn/CLionProjects/interpreter/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/ezrakahn/CLionProjects/interpreter/cmake-build-debug/CMakeFiles/rebuild_cache.dir
