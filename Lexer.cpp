@@ -13,9 +13,16 @@ bool isWhitespace(char c)
     return std::isspace(static_cast<unsigned char>(c));
 }
 
-bool isOpOrSyntax(char c)
+// Future: isOperator and isSyntax can be optimized by ordering most common chars first and perhaps by value ranges
+bool isOperator(char c)
 {
-    return ((37 <= c) && (c <= 47)) || ((59 <= c) && (c <= 62));
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '=' ||
+        c == '&' || c == '%' || c == '<' || c == '>' || c == '!';
+}
+
+bool isSyntax(char c)
+{
+    return c == '(' || c == ')' || c == '{' || c == '}' || c == ';' || c == ',';
 }
 
 bool isNumber(char c)
@@ -23,14 +30,15 @@ bool isNumber(char c)
     return (48 <= c) && (c <= 57);
 }
 
+//  keeps track of what kind of token is being built from the stream
 void Lexer::updateBuildMode(char c, unsigned int &buildStart, TokenBuildingMode &buildingMode)
 {
     if (isWhitespace(c))
         buildingMode = BUILDING_NONE;
-    else if (isOpOrSyntax(c))
+    else if (isSyntax(c))
     {
         buildingMode = BUILDING_OPERATOR;
-        buildStart = text.size(); // Note: text.size to-be index of cur char
+        buildStart = text.size(); // Note: text.size is to-be index of cur char
     } else if (isNumber(c))
     {
         buildingMode = BUILDING_NUMBER;
@@ -38,10 +46,10 @@ void Lexer::updateBuildMode(char c, unsigned int &buildStart, TokenBuildingMode 
     } else if (c == '"')
     {
         buildingMode = BUILDING_STRING;
-        buildStart = text.size() + 1; // skip quote
+        buildStart = text.size() + 1; // quote no included in token
     }else
     {
-        buildingMode = BUILDING_KEYWORD_OR_IDENTIFIER;
+        buildingMode = BUILDING_KEYWORD_OR_IDENTIFIER; // keywords or identifiers can't be discerned immediately
         buildStart = text.size();
     }
 }

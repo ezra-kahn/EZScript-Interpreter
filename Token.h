@@ -19,11 +19,11 @@ enum TokenType
     // Syntax Chars: ( ) { } ; ,
     OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY, CLOSE_CURLY, SEMICOLON, COMMA,
 
-    // Single char ops: + - * / = & % < >
-    PLUS, MINUS, STAR, FRONT_SLASH, EQUAL, AMP, PERCENT, LESS_THAN, GREATER_THAN,
+    // Single char ops: + - * / = & % < > !
+    PLUS, MINUS, STAR, FRONT_SLASH, EQUAL, AMP, PERCENT, LESS_THAN, GREATER_THAN, NOT,
 
-    // Two char ops: += -= *= /= == && <= >=
-    PLUS_EQUAL, MINUS_EQUAL, STAR_EQUAL, FRONT_SLASH_EQUAL, EQUAL_EQUAL, AMP_AMP, LESS_EQUAL, GREATER_EQUAL,
+    // Two char ops: += -= *= /= == && <= >= !=
+    PLUS_EQUAL, MINUS_EQUAL, STAR_EQUAL, FRONT_SLASH_EQUAL, EQUAL_EQUAL, AMP_AMP, LESS_EQUAL, GREATER_EQUAL, NOT_EQUAL,
 
     INVALID,
 };
