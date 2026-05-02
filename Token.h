@@ -7,23 +7,31 @@
 
 enum TokenType
 {
-    // Literals:
-    STRING, NUMBER, IDENTIFIER,
+    // Literals: "abc" 123
+    STRING, NUMBER,
 
-    // Keywords:
-    IF, ELSE, FUNCTION, VAR,
+    // Identifiers: varName
+    IDENTIFIER,
 
-    // Binary Operators:
-    ADD, SUBTRACT, MULTIPLY, DIVIDE,
+    // Keywords: if else function var true false
+    IF, ELSE, FUNCTION, VAR, TRUE, FALSE,
 
-    // Syntax Chars:
-    OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY, CLOSE_CURLY, SEMICOLON
+    // Single char ops: + - * / =
+    PLUS, MINUS, STAR, FRONT_SLASH, EQUAL,
+
+    // Syntax Chars: ( ) { } ; ,
+    OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY, CLOSE_CURLY, SEMICOLON, COMMA,
+
+    // Two char ops: += -= *= /= ==
+    PLUS_EQUAL, MINUS_EQUAL, STAR_EQUAL, FRONT_SLASH_EQUAL, EQUAL_EQUAL,
+
+    INVALID,
 };
 
-struct Token { // EX: STRING, 5, HELLO
+
+struct Token {
     TokenType type;
-    int content_size;
-    char* contents;
+    int contentOffset;
+    int contentSize;
 };
-
 #endif //TOKEN_H
