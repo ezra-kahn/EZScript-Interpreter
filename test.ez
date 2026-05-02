@@ -1,1 +1,5 @@
 var test = 10;
+var y = test + 3;
+if (y!=^test) {
+    print("hello" + test);
+}

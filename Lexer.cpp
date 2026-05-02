@@ -16,7 +16,7 @@ bool isWhitespace(char c)
 [[nodiscard]] bool isOperator(const char c)
 {
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '=' ||
-        c == '&' || c == '%' || c == '<' || c == '>' || c == '!';
+        c == '&' || c == '%' || c == '<' || c == '>' || c == '!' || c == '^';
 }
 
 [[nodiscard]] bool isSyntax(const char c)
