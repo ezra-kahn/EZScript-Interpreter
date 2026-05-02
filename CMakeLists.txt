@@ -4,5 +4,7 @@ project(interpreter)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(interpreter main.cpp
-        Token.h
+        token.h
+        Lexer.cpp
+        Lexer.h
 )

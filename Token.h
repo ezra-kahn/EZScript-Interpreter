@@ -31,7 +31,7 @@ enum TokenType
 
 struct Token {
     TokenType type;
-    int contentOffset;
-    int contentSize;
+    unsigned int contentOffset;
+    unsigned int contentSize;
 };
 #endif //TOKEN_H

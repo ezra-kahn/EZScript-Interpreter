@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "Lexer.h"
+
 
 int main(int argc, char* argv[])
 {
@@ -13,11 +15,8 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    char c;
-    while (file.get(c))
-    {
-        std::cout << c;
-    }
+    Lexer lexer(file);
+    std::cout << lexer.toString();
 
     return 0;
 }
