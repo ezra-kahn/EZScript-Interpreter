@@ -3,7 +3,6 @@
 //
 
 #include "Lexer.h"
-#include "Token.h"
 #include "vector"
 
 
@@ -14,28 +13,116 @@ bool isWhitespace(char c)
 }
 
 // Future: isOperator and isSyntax can be optimized by ordering most common chars first and perhaps by value ranges
-bool isOperator(char c)
+[[nodiscard]] bool isOperator(const char c)
 {
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '=' ||
         c == '&' || c == '%' || c == '<' || c == '>' || c == '!';
 }
 
-bool isSyntax(char c)
+[[nodiscard]] bool isSyntax(const char c)
 {
     return c == '(' || c == ')' || c == '{' || c == '}' || c == ';' || c == ',';
 }
 
-bool isNumber(char c)
+[[nodiscard]] bool isNumber(const char c)
 {
-    return (48 <= c) && (c <= 57);
+    return 48 <= c && c <= 57;
 }
+
+[[nodiscard]] bool isLetter(const char c)
+{
+    return (65 <= c && c <= 90) || (97 <= c && c <= 122);
+}
+
+[[nodiscard]] bool isValidStringContents(const char c)
+{
+    return 32 <= c && c <= 127;
+}
+
+TokenType Lexer::getSyntaxType(char c)
+{
+    switch (c)
+    {
+    case '(': return OPEN_PAREN;
+    case ')': return CLOSE_PAREN;
+    case '{': return OPEN_CURLY;
+    case '}': return CLOSE_CURLY;
+    case ';': return SEMICOLON;
+    case ',': return COMMA;
+    default:  return INVALID;
+    }
+}
+
+[[nodiscard]] TokenType Lexer::getOperatorType(const unsigned int start, const unsigned int size) const
+{
+    if (size == 1)
+    {
+        switch (text[start])
+        {
+        case '!': return BANG;
+        case '~': return TILDE;
+        case '+': return PLUS;
+        case '-': return MINUS;
+        case '*': return STAR;
+        case '/': return FRONT_SLASH;
+        case '=': return EQUAL;
+        case '&': return AMP;
+        case '%': return PERCENT;
+        case '<': return LESS_THAN;
+        case '>': return GREATER_THAN;
+        case '^': return CARET;
+        default: return INVALID;
+        }
+    } if (size == 2)
+    {
+        switch (text[start])
+        {
+        case '+':
+            if (text[start + 1] == '=') return PLUS_EQUAL;
+            break;
+        case '-':
+            if (text[start + 1] == '=') return MINUS_EQUAL;
+            break;
+        case '*':
+            if (text[start + 1] == '=') return STAR_EQUAL;
+            break;
+        case '/':
+            if (text[start + 1] == '=') return FRONT_SLASH_EQUAL;
+            break;
+        case '=':
+            if (text[start + 1] == '=') return EQUAL_EQUAL;
+            break;
+        case '&':
+            if (text[start + 1] == '&') return AMP_AMP;
+            break;
+        case '%':
+            if (text[start + 1] == '=') return PERCENT_EQUAL;
+            break;
+        case '<':
+            if (text[start + 1] == '=') return LESS_THAN_EQUAL;
+            break;
+        case '>':
+            if (text[start + 1] == '=') return GREATER_THAN_EQUAL;
+            break;
+        case '!':
+            if (text[start + 1] == '=') return BANG_EQUAL;
+            break;
+        case '^':
+            if (text[start + 1] == '=') return CARET_EQUAL;
+            break;
+        default: return INVALID;
+        }
+    }
+    return INVALID;
+}
+
 
 //  keeps track of what kind of token is being built from the stream
 void Lexer::updateBuildMode(char c, unsigned int &buildStart, TokenBuildingMode &buildingMode)
 {
     if (isWhitespace(c))
         buildingMode = BUILDING_NONE;
-    else if (isSyntax(c))
+    else if (isOperator(c))
     {
         buildingMode = BUILDING_OPERATOR;
         buildStart = text.size(); // Note: text.size is to-be index of cur char
@@ -46,8 +133,12 @@ void Lexer::updateBuildMode(char c, unsigned int &buildStart, TokenBuildingMode 
     } else if (c == '"')
     {
         buildingMode = BUILDING_STRING;
-        buildStart = text.size() + 1; // quote no included in token
-    }else
+        buildStart = text.size() + 1; // quote not included in token
+    } else if (isSyntax(c))
+    {
+        const unsigned int offset = text.size();
+        tokens.push_back(Token{getSyntaxType(c), offset, 1});
+    } else
     {
         buildingMode = BUILDING_KEYWORD_OR_IDENTIFIER; // keywords or identifiers can't be discerned immediately
         buildStart = text.size();
@@ -59,10 +150,40 @@ void Lexer::processChar(char c, unsigned int &buildStart, TokenBuildingMode &bui
     switch (buildingMode)
     {
     case BUILDING_NUMBER:
-        if (!isNumber(c))
+        if (!isNumber(c)) // End of number
         {
             const unsigned int size = text.size() - buildStart;
             tokens.push_back(Token{NUMBER, buildStart, size});
+            updateBuildMode(c, buildStart, buildingMode);
+        }
+        break;
+    case BUILDING_STRING:
+        if (c == '"') // End of string
+        {
+            const unsigned int size = text.size() - buildStart;
+            tokens.push_back(Token{STRING, buildStart, size});
+            buildingMode = BUILDING_NONE;
+        }
+        break;
+    case BUILDING_OPERATOR:
+        if (!isOperator(c)) // End of operator
+        {
+            unsigned int size = text.size() - buildStart;
+            TokenType type = getOperatorType(buildStart, size);
+            if (type == INVALID)
+            {
+                // If token is not valid operator try splitting into to ops: a==!b: "==!" is invalid, but == and ! are valid
+                size--;
+                type = getOperatorType(buildStart, size);
+                const unsigned int secondTokenIndex = text.size() - 1;
+                const TokenType secondType = getOperatorType(secondTokenIndex, 1);
+                tokens.push_back(Token{type, buildStart, size});
+                tokens.push_back(Token{secondType, secondTokenIndex, 1});
+
+            } else
+            {
+                tokens.push_back(Token{type, buildStart, size});
+            }
             updateBuildMode(c, buildStart, buildingMode);
         }
         break;
@@ -85,12 +206,25 @@ Lexer::Lexer(std::basic_istream<char> &stream)
     processChar('\0', buildStart, buildingMode);
 }
 
-std::string Lexer::toString() const
+std::string Lexer::toString() const // For debugging
 {
     std::string out;
     for (Token token: tokens)
     {
-        out.append("Number");
+        switch (token.type)
+        {
+        case NUMBER:
+            out.append(" NUMBER ");
+            break;
+        case STRING:
+            out.append(" STRING: \"");
+            out.append(text.begin() + token.contentOffset, text.begin() + token.contentOffset + token.contentSize);
+            out.append("\"");
+            break;
+        default:
+            out += text[token.contentOffset];
+        }
+
     }
     return out;
 }
