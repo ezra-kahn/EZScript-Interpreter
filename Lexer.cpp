@@ -116,6 +116,20 @@ TokenType Lexer::getSyntaxType(char c)
     return INVALID;
 }
 
+// future optimization: switch based on size first
+TokenType Lexer::getKeywordType(unsigned int start, unsigned int size) const
+{
+    const std::string_view label(text.data() + start, size);
+    if (label == "if") return IF;
+    if (label == "else") return ELSE;
+    if (label == "func") return FUNC;
+    if (label == "var") return VAR;
+    if (label == "true") return TRUE;
+    if (label == "false") return FALSE;
+    return INVALID;
+}
+
+
 
 //  keeps track of what kind of token is being built from the stream
 void Lexer::updateBuildMode(char c, unsigned int &buildStart, TokenBuildingMode &buildingMode)
@@ -138,13 +152,22 @@ void Lexer::updateBuildMode(char c, unsigned int &buildStart, TokenBuildingMode 
     {
         const unsigned int offset = text.size();
         tokens.push_back(Token{getSyntaxType(c), offset, 1});
-    } else
+        buildingMode = BUILDING_NONE;
+    } else if (isLetter(c))
     {
         buildingMode = BUILDING_KEYWORD_OR_IDENTIFIER; // keywords or identifiers can't be discerned immediately
         buildStart = text.size();
+    } else // Invalid char?
+    {
+        std::cerr << "Invalid char";
+        abort();
     }
 }
 
+// Note for future: when token is created but c hasn't been pushed,
+// there is temporarily a token referencing char outside of vector,
+// if something happens between token creation and vector add c,
+// could cause out-of-bounds access
 void Lexer::processChar(char c, unsigned int &buildStart, TokenBuildingMode &buildingMode)
 {
     switch (buildingMode)
@@ -187,6 +210,16 @@ void Lexer::processChar(char c, unsigned int &buildStart, TokenBuildingMode &bui
             updateBuildMode(c, buildStart, buildingMode);
         }
         break;
+    case BUILDING_KEYWORD_OR_IDENTIFIER:
+        if (!isLetter(c) && !isNumber(c)) // end of keyword/operator
+        {
+            unsigned int size = text.size() - buildStart;
+            TokenType type = getKeywordType(buildStart, size);
+            if (type == INVALID) type = IDENTIFIER; // if not keyword, assume identifier
+            tokens.push_back(Token{type, buildStart, size});
+            updateBuildMode(c, buildStart, buildingMode);
+        }
+        break;
     case BUILDING_NONE:
     default:
         updateBuildMode(c, buildStart, buildingMode);
@@ -203,26 +236,26 @@ Lexer::Lexer(std::basic_istream<char> &stream)
     {
         processChar(c, buildStart, buildingMode);
     }
-    processChar('\0', buildStart, buildingMode);
+    processChar(' ', buildStart, buildingMode);
 }
 
 std::string Lexer::toString() const // For debugging
 {
     std::string out;
-    for (Token token: tokens)
+    for (auto [type, contentOffset, contentSize]: tokens)
     {
-        switch (token.type)
+        switch (type)
         {
         case NUMBER:
             out.append(" NUMBER ");
             break;
         case STRING:
             out.append(" STRING: \"");
-            out.append(text.begin() + token.contentOffset, text.begin() + token.contentOffset + token.contentSize);
+            out.append(text.begin() + contentOffset, text.begin() + contentOffset + contentSize);
             out.append("\"");
             break;
         default:
-            out += text[token.contentOffset];
+            out += text[contentOffset];
         }
 
     }

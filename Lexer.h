@@ -16,8 +16,8 @@ enum TokenType
     // Identifiers: varName
     IDENTIFIER,
 
-    // Keywords: if else function var true false
-    IF, ELSE, FUNCTION, VAR, TRUE, FALSE,
+    // Keywords: if else func var true false
+    IF, ELSE, FUNC, VAR, TRUE, FALSE,
 
     // Syntax Chars: ( ) { } ; ,
     OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY, CLOSE_CURLY, SEMICOLON, COMMA,
@@ -61,6 +61,7 @@ private:
     void processChar(char c, unsigned int &buildStart, TokenBuildingMode &buildingMode);
     [[nodiscard]] static TokenType getSyntaxType(char c);
     [[nodiscard]] TokenType getOperatorType(unsigned int start, unsigned int size) const;
+    [[nodiscard]] TokenType getKeywordType(unsigned int start, unsigned int size) const;
 };
 
 
