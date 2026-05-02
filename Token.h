@@ -16,14 +16,14 @@ enum TokenType
     // Keywords: if else function var true false
     IF, ELSE, FUNCTION, VAR, TRUE, FALSE,
 
-    // Single char ops: + - * / =
-    PLUS, MINUS, STAR, FRONT_SLASH, EQUAL,
-
     // Syntax Chars: ( ) { } ; ,
     OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY, CLOSE_CURLY, SEMICOLON, COMMA,
 
-    // Two char ops: += -= *= /= ==
-    PLUS_EQUAL, MINUS_EQUAL, STAR_EQUAL, FRONT_SLASH_EQUAL, EQUAL_EQUAL,
+    // Single char ops: + - * / = & % < >
+    PLUS, MINUS, STAR, FRONT_SLASH, EQUAL, AMP, PERCENT, LESS_THAN, GREATER_THAN,
+
+    // Two char ops: += -= *= /= == && <= >=
+    PLUS_EQUAL, MINUS_EQUAL, STAR_EQUAL, FRONT_SLASH_EQUAL, EQUAL_EQUAL, AMP_AMP, LESS_EQUAL, GREATER_EQUAL,
 
     INVALID,
 };
