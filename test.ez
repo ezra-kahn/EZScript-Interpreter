@@ -1,2 +1,5 @@
 x = 5;
 y = 10;
+if (y == 2 * x) {
+    print("hello");
+}
