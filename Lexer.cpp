@@ -130,6 +130,20 @@ TokenType Lexer::getKeywordType(unsigned int start, unsigned int size) const
 }
 
 
+void Lexer::addToken(const TokenType type, const unsigned int contentOffset, const unsigned int contentSize)
+{
+    auto* newToken = new Token(nullptr, type, contentOffset, contentSize);
+    if (tokensRoot == nullptr)
+    {
+        tokensRoot = newToken;
+        lastToken = tokensRoot;
+    } else
+    {
+        lastToken -> nextToken = newToken;
+        lastToken = newToken;
+    }
+}
+
 
 //  keeps track of what kind of token is being built from the stream
 void Lexer::updateBuildMode(char c, unsigned int &buildStart, TokenBuildingMode &buildingMode)
@@ -151,7 +165,7 @@ void Lexer::updateBuildMode(char c, unsigned int &buildStart, TokenBuildingMode 
     } else if (isSyntax(c))
     {
         const unsigned int offset = text.size();
-        tokens.push_back(Token{getSyntaxType(c), offset, 1});
+        addToken(getSyntaxType(c), offset, 1);
         buildingMode = BUILDING_NONE;
     } else if (isLetter(c))
     {
@@ -176,7 +190,7 @@ void Lexer::processChar(char c, unsigned int &buildStart, TokenBuildingMode &bui
         if (!isNumber(c)) // End of number
         {
             const unsigned int size = text.size() - buildStart;
-            tokens.push_back(Token{NUMBER, buildStart, size});
+            addToken(NUMBER, buildStart, size);
             updateBuildMode(c, buildStart, buildingMode);
         }
         break;
@@ -184,7 +198,7 @@ void Lexer::processChar(char c, unsigned int &buildStart, TokenBuildingMode &bui
         if (c == '"') // End of string
         {
             const unsigned int size = text.size() - buildStart;
-            tokens.push_back(Token{STRING, buildStart, size});
+            addToken(STRING, buildStart, size);
             buildingMode = BUILDING_NONE;
         }
         break;
@@ -200,12 +214,12 @@ void Lexer::processChar(char c, unsigned int &buildStart, TokenBuildingMode &bui
                 type = getOperatorType(buildStart, size);
                 const unsigned int secondTokenIndex = text.size() - 1;
                 const TokenType secondType = getOperatorType(secondTokenIndex, 1);
-                tokens.push_back(Token{type, buildStart, size});
-                tokens.push_back(Token{secondType, secondTokenIndex, 1});
+                addToken(type, buildStart, size);
+                addToken(secondType, secondTokenIndex, 1);
 
             } else
             {
-                tokens.push_back(Token{type, buildStart, size});
+                addToken(type, buildStart, size);
             }
             updateBuildMode(c, buildStart, buildingMode);
         }
@@ -216,7 +230,7 @@ void Lexer::processChar(char c, unsigned int &buildStart, TokenBuildingMode &bui
             unsigned int size = text.size() - buildStart;
             TokenType type = getKeywordType(buildStart, size);
             if (type == INVALID) type = IDENTIFIER; // if not keyword, assume identifier
-            tokens.push_back(Token{type, buildStart, size});
+            addToken(type, buildStart, size);
             updateBuildMode(c, buildStart, buildingMode);
         }
         break;
@@ -237,27 +251,4 @@ Lexer::Lexer(std::basic_istream<char> &stream)
         processChar(c, buildStart, buildingMode);
     }
     processChar(' ', buildStart, buildingMode);
-}
-
-std::string Lexer::toString() const // For debugging
-{
-    std::string out;
-    for (auto [type, contentOffset, contentSize]: tokens)
-    {
-        switch (type)
-        {
-        case NUMBER:
-            out.append(" NUMBER ");
-            break;
-        case STRING:
-            out.append(" STRING: \"");
-            out.append(text.begin() + contentOffset, text.begin() + contentOffset + contentSize);
-            out.append("\"");
-            break;
-        default:
-            out += text[contentOffset];
-        }
-
-    }
-    return out;
 }

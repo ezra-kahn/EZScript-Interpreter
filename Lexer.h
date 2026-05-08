@@ -10,8 +10,8 @@
 
 enum TokenType
 {
-    // Literals: "abc" 123
-    STRING, NUMBER,
+    // Literals: "abc" 123 true
+    STRING, NUMBER, BOOLEAN,
 
     // Identifiers: varName
     IDENTIFIER,
@@ -33,10 +33,8 @@ enum TokenType
     PERCENT_EQUAL, LESS_THAN_EQUAL, GREATER_THAN_EQUAL, BANG_EQUAL, CARET_EQUAL,
 
     INVALID,
-};
 
-enum TokenGroup
-{
+    // Token Groups:
     UNARY_TOKEN_GROUP,
     BINARY_TOKEN_GROUP,
     ASSIGNMENT_TOKEN_GROUP,
@@ -45,10 +43,10 @@ enum TokenGroup
     LITERAL_TOKEN_GROUP,
     IDENTIFIER_TOKEN_GROUP,
     NO_TOKEN_GROUP,
+    ANY_TOKEN_GROUP,
 };
-
 // Returns token group for a given token, ex PLUS -> BINARY_TOKEN_GROUP
-constexpr TokenGroup getTokenGroup(const TokenType t)
+constexpr TokenType getTokenGroup(const TokenType t)
 {
     switch (t)
     {
@@ -87,6 +85,7 @@ constexpr TokenGroup getTokenGroup(const TokenType t)
     case TRUE:
     case FALSE:
         return KEYWORD_TOKEN_GROUP;
+    case BOOLEAN:
     case STRING:
     case NUMBER:
         return LITERAL_TOKEN_GROUP;
@@ -103,6 +102,7 @@ constexpr TokenGroup getTokenGroup(const TokenType t)
 }
 
 struct Token {
+    Token* nextToken;
     TokenType type;
     unsigned int contentOffset;
     unsigned int contentSize;
@@ -123,7 +123,9 @@ private:
     };
 
     std::vector<char> text;
-    std::vector<Token> tokens;
+    Token* tokensRoot;
+    Token* lastToken;
+    void addToken(TokenType type, unsigned int contentOffset, unsigned int contentSize);
     void updateBuildMode(char c, unsigned int &buildStart, TokenBuildingMode &buildingMode);
     void processChar(char c, unsigned int &buildStart, TokenBuildingMode &buildingMode);
     [[nodiscard]] static TokenType getSyntaxType(char c);
