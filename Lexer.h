@@ -22,11 +22,11 @@ enum TokenType
     // Syntax Chars: ( ) { } ; ,
     OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY, CLOSE_CURLY, SEMICOLON, COMMA,
 
-    // Unary ops (must be single char): ! ~
-    BANG, TILDE,
+    // Unary ops (must be single char): ! ~ ^
+    BANG, TILDE, CARET,
 
-    // Single char ops: + - * / = & % < > ^
-    PLUS, MINUS, STAR, FRONT_SLASH, EQUAL, AMP, PERCENT, LESS_THAN, GREATER_THAN, CARET,
+    // Single char ops: + - * / = & % < >
+    PLUS, MINUS, STAR, FRONT_SLASH, EQUAL, AMP, PERCENT, LESS_THAN, GREATER_THAN,
 
     // Two char ops: += -= *= /= == && %= <= >= != ^=
     PLUS_EQUAL, MINUS_EQUAL, STAR_EQUAL, FRONT_SLASH_EQUAL, EQUAL_EQUAL, AMP_AMP,
@@ -34,6 +34,73 @@ enum TokenType
 
     INVALID,
 };
+
+enum TokenGroup
+{
+    UNARY_TOKEN_GROUP,
+    BINARY_TOKEN_GROUP,
+    ASSIGNMENT_TOKEN_GROUP,
+    SYNTAX_TOKEN_GROUP,
+    KEYWORD_TOKEN_GROUP,
+    LITERAL_TOKEN_GROUP,
+    IDENTIFIER_TOKEN_GROUP,
+    NO_TOKEN_GROUP,
+};
+
+// Returns token group for a given token, ex PLUS -> BINARY_TOKEN_GROUP
+constexpr TokenGroup getTokenGroup(const TokenType t)
+{
+    switch (t)
+    {
+    case PLUS:
+    case MINUS:
+    case STAR:
+    case FRONT_SLASH:
+    case AMP:
+    case PERCENT:
+    case LESS_THAN:
+    case GREATER_THAN:
+    case EQUAL_EQUAL:
+    case AMP_AMP:
+    case PERCENT_EQUAL:
+    case LESS_THAN_EQUAL:
+    case GREATER_THAN_EQUAL:
+    case BANG_EQUAL:
+        return BINARY_TOKEN_GROUP;
+    case EQUAL:
+    case CARET_EQUAL:
+    case PLUS_EQUAL:
+    case MINUS_EQUAL:
+    case STAR_EQUAL:
+    case FRONT_SLASH_EQUAL:
+        return ASSIGNMENT_TOKEN_GROUP;
+    case BANG:
+    case TILDE:
+    case CARET:
+        return UNARY_TOKEN_GROUP;
+    case IDENTIFIER:
+        return IDENTIFIER_TOKEN_GROUP;
+    case IF:
+    case ELSE:
+    case FUNC:
+    case VAR:
+    case TRUE:
+    case FALSE:
+        return KEYWORD_TOKEN_GROUP;
+    case STRING:
+    case NUMBER:
+        return LITERAL_TOKEN_GROUP;
+    case OPEN_PAREN:
+    case CLOSE_PAREN:
+    case OPEN_CURLY:
+    case CLOSE_CURLY:
+    case SEMICOLON:
+    case COMMA:
+        return SYNTAX_TOKEN_GROUP;
+    default:
+        return NO_TOKEN_GROUP;
+    }
+}
 
 struct Token {
     TokenType type;
