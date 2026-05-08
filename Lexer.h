@@ -111,7 +111,6 @@ struct Token {
 class Lexer {
 public:
     explicit Lexer (std::basic_istream<char> &stream);
-    [[nodiscard]] std::string toString() const;
 private:
     enum TokenBuildingMode
     {
