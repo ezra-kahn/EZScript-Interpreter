@@ -132,7 +132,7 @@ TokenType Lexer::getKeywordType(unsigned int start, unsigned int size) const
 
 void Lexer::addToken(const TokenType type, const unsigned int contentOffset, const unsigned int contentSize)
 {
-    auto* newToken = new Token(nullptr, type, contentOffset, contentSize);
+    auto* newToken = new Token{nullptr, type, std::string(&text[contentOffset], contentSize)};
     if (tokensRoot == nullptr)
     {
         tokensRoot = newToken;
@@ -251,4 +251,9 @@ Lexer::Lexer(std::basic_istream<char> &stream)
         processChar(c, buildStart, buildingMode);
     }
     processChar(' ', buildStart, buildingMode);
+}
+
+Token* Lexer::getTokenList()
+{
+    return tokensRoot;
 }

@@ -2,6 +2,7 @@
 #include <fstream>
 
 #include "Lexer.h"
+#include "Parser.h"
 
 
 int main(int argc, char* argv[])
@@ -16,7 +17,6 @@ int main(int argc, char* argv[])
     }
 
     Lexer lexer(file);
-    std::cout << lexer.toString();
-
+    Parser parser(lexer.getTokenList());
     return 0;
 }

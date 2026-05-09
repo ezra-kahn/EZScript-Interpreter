@@ -1,5 +1,8 @@
+a + b * 2+
+
+
 var test = 10;
 var y = test + 3;
-if (y!=^test) {
+if (y != test) {
     print("hello" + test);
 }

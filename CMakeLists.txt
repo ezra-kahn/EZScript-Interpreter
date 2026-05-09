@@ -6,4 +6,6 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(interpreter main.cpp
         Lexer.cpp
         Lexer.h
+        Parser.cpp
+        Parser.h
 )

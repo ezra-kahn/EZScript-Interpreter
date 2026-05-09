@@ -104,13 +104,13 @@ constexpr TokenType getTokenGroup(const TokenType t)
 struct Token {
     Token* nextToken;
     TokenType type;
-    unsigned int contentOffset;
-    unsigned int contentSize;
+    std::string text;
 };
 
 class Lexer {
 public:
     explicit Lexer (std::basic_istream<char> &stream);
+    Token* getTokenList();
 private:
     enum TokenBuildingMode
     {

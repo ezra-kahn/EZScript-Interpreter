@@ -12,7 +12,7 @@
 
 enum Operation
 {
-    UNARY_OP, BINARY_OP, BRANCH_OP, RETRIEVAL_OP, ASSIGNMENT_OP, DECLARATION_OP
+    UNARY_OP, BINARY_OP, BRANCH_OP, RETRIEVAL_OP, ASSIGNMENT_OP, DECLARATION_OP, LITERAL_OP, INVALID_OP,
 };
 
 enum ValueType
@@ -27,28 +27,40 @@ struct ValueStore
     {
         int integer;
         double decimal;
-        std::string text;
-    };
+        std::string_view text;
+    } value;
 };
+
 
 struct ASTNode
 {
     ASTNode* firstChild;
-    ASTNode* nextChild;
+    ASTNode* nextSibling;
     Operation opClass;
+    TokenType opType;
     union Context
     {
-        TokenType opType;
-        ValueStore* valueStore; // For retrieval_op and assignment_op
-    };
+        std::string_view valueLabel; // For retrieval_op and assignment_op
+        ValueStore value; // For literal_op
+        bool tightlyBound; // For binary_op precedence
+    } context;
 };
 
 class Parser {
 public:
-    explicit Parser(std::vector<Token> &tokens);
+    explicit Parser(Token* firstToken);
 private:
+    Token* currentToken;
+    Token* expect(TokenType t, std::string_view componentName);
+    ASTNode* expect(ASTNode* n, std::string_view componentName);
+    Token* eatToken();
+    TokenType glanceToken() const;
+    TokenType glanceTokenGroup() const;
+    ASTNode* matchExpr();
+    ASTNode* matchLiteral();
     std::unordered_map<std::string, ValueStore> valueMap;
 };
+
 
 
 #endif //PARSER_H
