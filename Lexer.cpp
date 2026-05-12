@@ -126,6 +126,7 @@ TokenType Lexer::getKeywordType(unsigned int start, unsigned int size) const
     if (label == "var") return VAR;
     if (label == "true") return TRUE;
     if (label == "false") return FALSE;
+    if (label == "print") return PRINT;
     return INVALID;
 }
 

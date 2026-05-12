@@ -12,7 +12,7 @@
 
 enum Operation
 {
-    STATEMENT_GROUP, UNARY_OP, BINARY_OP, BRANCH_OP, RETRIEVAL_OP, ASSIGNMENT_OP, DECLARATION_OP, LITERAL_OP, INVALID_OP,
+    STATEMENT_GROUP, PRINT_OP, UNARY_OP, BINARY_OP, BRANCH_OP, RETRIEVAL_OP, ASSIGNMENT_OP, DECLARATION_OP, LITERAL_OP, INVALID_OP,
 };
 
 enum ValueType
@@ -89,7 +89,7 @@ private:
     ASTNode* parseStatement();
     ASTNode* parseDeclaration();
     ASTNode* parseStatementGroup();
-    ASTNode* Parser::parsePrint();
+    ASTNode* parsePrint();
 
     Token* currentToken;
     Token* expect(TokenType t, std::string_view componentName = "");

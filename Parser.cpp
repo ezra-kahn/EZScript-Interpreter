@@ -23,8 +23,12 @@ ASTNode* Parser::parseDeclaration()
 
 ASTNode* Parser::parseStatement()
 {
-    return parseDeclaration();
+    ASTNode* statement;
+    if (currentToken == nullptr) return nullptr;
+    if ((statement = parseDeclaration())) return statement;
+    if ((statement = parsePrint())) return statement;
     //return parseDeclaration() || parseAssignment() || parseBranch();
+    return nullptr;
 }
 
 ASTNode* Parser::parseStatementGroup()
@@ -41,7 +45,11 @@ ASTNode* Parser::parseStatementGroup()
 
 ASTNode* Parser::parsePrint()
 {
-
+    if (glanceToken() != PRINT) return nullptr;
+    eatToken();
+    ASTNode* printVal = expect(parseExprClosed());
+    expect(SEMICOLON);
+    return new ASTNode{printVal, nullptr, PRINT_OP, NO_TOKEN_GROUP};
 }
 
 ASTNode* Parser::parseExprClosed()

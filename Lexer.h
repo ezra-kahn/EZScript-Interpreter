@@ -17,7 +17,7 @@ enum TokenType
     IDENTIFIER,
 
     // Keywords: if else func var true false
-    IF, ELSE, FUNC, VAR, TRUE, FALSE,
+    IF, ELSE, FUNC, VAR, TRUE, FALSE, PRINT,
 
     // Syntax Chars: ( ) { } ; ,
     OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY, CLOSE_CURLY, SEMICOLON, COMMA,
@@ -81,6 +81,7 @@ constexpr TokenType getTokenGroup(const TokenType t)
     case VAR:
     case TRUE:
     case FALSE:
+    case PRINT:
         return KEYWORD_TOKEN_GROUP;
     case BOOLEAN:
     case STRING:
