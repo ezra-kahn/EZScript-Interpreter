@@ -27,6 +27,7 @@ ASTNode* Parser::parseStatement()
     if (currentToken == nullptr) return nullptr;
     if ((statement = parseDeclaration())) return statement;
     if ((statement = parsePrint())) return statement;
+    if ((statement = parseAssignment())) return statement;
     //return parseDeclaration() || parseAssignment() || parseBranch();
     return nullptr;
 }
@@ -109,6 +110,18 @@ ASTNode* Parser::parsePrefix()
         return prefix;
     }
     return nullptr;
+}
+
+ASTNode* Parser::parseAssignment()
+{
+    if (glanceToken() != IDENTIFIER) return nullptr;
+    ASTNode* identifier = expect(parseIdentifier());
+    identifier -> opClass = ASSIGNMENT_OP;
+    expect(EQUAL); // TODO: Add other forms of assignment, ex: +=
+    ASTNode* val = expect(parseExpr());
+    expect(SEMICOLON);
+    identifier -> firstChild = val;
+    return identifier;
 }
 
 ASTNode* Parser::parseLiteral()

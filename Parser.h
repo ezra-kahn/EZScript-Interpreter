@@ -96,6 +96,7 @@ private:
     ASTNode* parseStatement();
     ASTNode* parseDeclaration();
     ASTNode* parseStatementGroup();
+    ASTNode* parseAssignment();
     ASTNode* parsePrint();
 
     Token* currentToken;

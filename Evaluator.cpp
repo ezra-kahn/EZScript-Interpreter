@@ -60,6 +60,9 @@ ValueStore Evaluator::evaluateNode(ASTNode* node)
             valueMap.emplace(node->context.valueLabel, val);
             break;
         }
+    case ASSIGNMENT_OP:
+        valueMap.at(node->context.valueLabel) = evaluateNode(node->firstChild);
+        break;
     case RETRIEVAL_OP:
         return valueMap.at(node->context.valueLabel);
     case LITERAL_OP:
