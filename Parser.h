@@ -17,7 +17,7 @@ enum Operation
 
 enum ValueType
 {
-    NO_VALUE, INTEGER_VALUE, FLOATING_VALUE, TEXT_VALUE
+    NO_VALUE, INTEGER_VALUE, BOOLEAN_VALUE, TEXT_VALUE
 };
 
 struct ValueStore
@@ -26,7 +26,7 @@ struct ValueStore
     union Value
     {
         int integer;
-        double floating;
+        bool boolean;
         std::string_view text;
     } value;
 
@@ -81,7 +81,6 @@ public:
     explicit Parser(Token* firstToken);
     ASTNode* parseExprClosed();
     static void printTree(ASTNode* node);
-    static void printVal(ValueStore v);
 
     ASTNode* getAST()
     {
@@ -98,6 +97,8 @@ private:
     ASTNode* parseStatementGroup();
     ASTNode* parseAssignment();
     ASTNode* parsePrint();
+    ASTNode* parseBlock();
+    ASTNode* parseBranch();
 
     Token* currentToken;
     Token* expect(TokenType t, std::string_view componentName = "");

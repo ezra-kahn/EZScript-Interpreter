@@ -15,9 +15,14 @@ private:
     ValueStore evaluateBinary(ASTNode* node);
     ValueStore evaluateUnary(ASTNode* node);
     ValueStore evaluateNode(ASTNode* node);
+    ValueStore evaluateBranch(ASTNode* node);
     void evaluateChildren(ASTNode* node);
-    ASTNode* codeRoot;
 
+    static void printValue(const ValueStore& v);
+
+    static bool isTrue(const ValueStore& valueStore);
+
+    ASTNode* codeRoot;
     std::unordered_map<std::string_view, ValueStore> valueMap;
 };
 

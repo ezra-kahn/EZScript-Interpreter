@@ -28,6 +28,7 @@ ASTNode* Parser::parseStatement()
     if ((statement = parseDeclaration())) return statement;
     if ((statement = parsePrint())) return statement;
     if ((statement = parseAssignment())) return statement;
+    if ((statement = parseBranch())) return statement;
     //return parseDeclaration() || parseAssignment() || parseBranch();
     return nullptr;
 }
@@ -127,9 +128,28 @@ ASTNode* Parser::parseAssignment()
 ASTNode* Parser::parseLiteral()
 {
     if (glanceTokenGroup() != LITERAL_TOKEN_GROUP) return nullptr;
-    const Token* t = expect(NUMBER, "LITERAL");
+    const Token* t = eatToken();
+    ValueStore v = {};
+    switch (t->type)
+    {
+        case NUMBER:
+            v.valueType = INTEGER_VALUE;
+            v.value.integer = std::stoi(t->text);
+            break;
+        case TRUE:
+            v.valueType = BOOLEAN_VALUE;
+            v.value.boolean = t->text == "true";
+            break;
+        case STRING:
+            v.valueType = TEXT_VALUE;
+            v.value.text = t->text;
+            break;
+        default:
+            v.valueType = NO_VALUE;
+            v.value.integer = 0;
+    }
     auto* node = new ASTNode{nullptr, nullptr, LITERAL_OP, t->type,};
-    node->context.valueStore = {INTEGER_VALUE, std::stoi(t->text)};
+    node->context.valueStore = v;
     return node;
 }
 
@@ -142,10 +162,39 @@ ASTNode* Parser::parseIdentifier()
     return node;
 }
 
+// Checks single statement or statements in braces
+ASTNode* Parser::parseBlock()
+{
+    ASTNode* block = parseStatement();
+    if (block != nullptr) return block;
+    if (glanceToken() != OPEN_CURLY) return nullptr;
+    eatToken();
+    block = parseStatementGroup();
+    expect(CLOSE_CURLY, "Block end");
+    return block;
+}
+
+ASTNode* Parser::parseBranch()
+{
+    if (glanceToken() != IF) return nullptr;
+    eatToken();
+    ASTNode* condition = expect(parseExprClosed());
+    ASTNode* ifBranch = expect(parseBlock());
+    condition -> nextSibling = ifBranch;
+    ASTNode* branch = new ASTNode{condition, nullptr, BRANCH_OP, NO_TOKEN_GROUP,};
+    if (glanceToken() != ELSE) return branch;
+    eatToken();
+    ASTNode* elseBranch = expect(parseBlock());
+    ifBranch -> nextSibling = elseBranch;
+    return branch;
+}
+
+
+
+
+
+
 // HELPER METHODS
-
-
-
 ASTNode* Parser::binary(ASTNode* left, TokenType op, ASTNode* right)
 {
     left->nextSibling = right;
@@ -168,7 +217,7 @@ void Parser::printTree(ASTNode* node)
     } else if (node -> opClass == LITERAL_OP)
     {
         std::cout << ": ";
-        printVal(node->context.valueStore);
+        // Evaluator::printValue(node->context.valueStore);
     } else if (node -> opClass == RETRIEVAL_OP)
     {
         std::cout << ": '" << node->context.valueLabel << "'";
@@ -185,20 +234,6 @@ void Parser::printTree(ASTNode* node)
         it = it->nextSibling;
     }
     std::cout << ")";
-}
-
-void Parser::printVal(ValueStore v)
-{
-    switch (v.valueType)
-    {
-    case TEXT_VALUE:
-        std::cout << v.value.text;
-    case FLOATING_VALUE:
-        std::cout << v.value.floating;
-    case INTEGER_VALUE:
-    default:
-        std::cout << v.value.integer;
-    }
 }
 
 Token* Parser::eatToken()

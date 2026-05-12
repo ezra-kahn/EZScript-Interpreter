@@ -1,5 +1,8 @@
-var x = 5;
-var y = 2 * x;
-y = 2 * y;
-var test = 10 * y;
-print(test);
+if (false) {
+    print("Hello World!");
+} else {
+    var x = 2;
+    print("hi");
+    var y = 10 * x;
+    print(y);
+}

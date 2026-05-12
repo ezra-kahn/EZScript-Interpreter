@@ -11,13 +11,13 @@
 enum TokenType
 {
     // Literals: "abc" 123 true
-    STRING, NUMBER, BOOLEAN,
+    STRING, NUMBER, TRUE, FALSE,
 
     // Identifiers: varName
     IDENTIFIER,
 
     // Keywords: if else func var true false
-    IF, ELSE, FUNC, VAR, TRUE, FALSE, PRINT,
+    IF, ELSE, FUNC, VAR,  PRINT,
 
     // Syntax Chars: ( ) { } ; ,
     OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY, CLOSE_CURLY, SEMICOLON, COMMA,
@@ -79,11 +79,10 @@ constexpr TokenType getTokenGroup(const TokenType t)
     case ELSE:
     case FUNC:
     case VAR:
-    case TRUE:
-    case FALSE:
     case PRINT:
         return KEYWORD_TOKEN_GROUP;
-    case BOOLEAN:
+    case TRUE:
+    case FALSE:
     case STRING:
     case NUMBER:
         return LITERAL_TOKEN_GROUP;
