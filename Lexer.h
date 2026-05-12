@@ -23,10 +23,10 @@ enum TokenType
     OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY, CLOSE_CURLY, SEMICOLON, COMMA,
 
     // Unary ops (must be single char): ! ~ ^
-    BANG, TILDE, CARET,
+    BANG, TILDE,
 
     // Single char ops: + - * / = & % < >
-    PLUS, MINUS, STAR, FRONT_SLASH, EQUAL, AMP, PERCENT, LESS_THAN, GREATER_THAN,
+    PLUS, MINUS, STAR, FRONT_SLASH, EQUAL, AMP, PERCENT, LESS_THAN, GREATER_THAN, CARET,
 
     // Two char ops: += -= *= /= == && %= <= >= != ^=
     PLUS_EQUAL, MINUS_EQUAL, STAR_EQUAL, FRONT_SLASH_EQUAL, EQUAL_EQUAL, AMP_AMP,
@@ -63,6 +63,7 @@ constexpr TokenType getTokenGroup(const TokenType t)
     case LESS_THAN_EQUAL:
     case GREATER_THAN_EQUAL:
     case BANG_EQUAL:
+    case CARET:
         return BINARY_TOKEN_GROUP;
     case EQUAL:
     case CARET_EQUAL:
@@ -73,7 +74,6 @@ constexpr TokenType getTokenGroup(const TokenType t)
         return ASSIGNMENT_TOKEN_GROUP;
     case BANG:
     case TILDE:
-    case CARET:
         return UNARY_TOKEN_GROUP;
     case IF:
     case ELSE:
