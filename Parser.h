@@ -17,7 +17,7 @@ enum Operation
 
 enum ValueType
 {
-    INTEGER_VALUE, FLOATING_VALUE, TEXT_VALUE,
+    NO_VALUE, INTEGER_VALUE, FLOATING_VALUE, TEXT_VALUE
 };
 
 struct ValueStore
@@ -29,6 +29,8 @@ struct ValueStore
         double floating;
         std::string_view text;
     } value;
+
+
 };
 
 constexpr int precedence(const TokenType t)
@@ -81,6 +83,11 @@ public:
     static void printTree(ASTNode* node);
     static void printVal(ValueStore v);
 
+    ASTNode* getAST()
+    {
+        return expect(parseStatementGroup(), "STATEMENT");
+    }
+
 private:
     ASTNode* parseExpr(int minPrec = 0); // Pratt Parser
     ASTNode* parseLiteral();
@@ -98,7 +105,6 @@ private:
     TokenType glanceToken() const;
     TokenType glanceTokenGroup() const;
     static ASTNode* binary(ASTNode* left, TokenType op, ASTNode* right);
-    std::unordered_map<std::string, ValueStore> valueMap;
 };
 
 

@@ -8,4 +8,6 @@ add_executable(interpreter main.cpp
         Lexer.h
         Parser.cpp
         Parser.h
+        Evaluator.cpp
+        Evaluator.h
 )

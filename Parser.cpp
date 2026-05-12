@@ -142,8 +142,8 @@ ASTNode* Parser::binary(ASTNode* left, TokenType op, ASTNode* right)
 Parser::Parser(Token* firstToken)
 {
     currentToken = firstToken;
-    ASTNode* expr = expect(parseStatementGroup(), "EXPRESSION");
-    printTree(expr);
+    // ASTNode* expr = expect(parseStatementGroup(), "STATEMENT");
+    // printTree(expr);
 }
 
 void Parser::printTree(ASTNode* node)

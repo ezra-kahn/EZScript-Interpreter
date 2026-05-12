@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "Evaluator.h"
 #include "Lexer.h"
 #include "Parser.h"
 
@@ -18,5 +19,8 @@ int main(int argc, char* argv[])
 
     Lexer lexer(file);
     Parser parser(lexer.getTokenList());
+    Evaluator evaluator(parser.getAST());
+    evaluator.evaluateCode();
+
     return 0;
 }
