@@ -1,8 +1,5 @@
-if (false) {
-    print("Hello World!");
-} else {
-    var x = 2;
-    print("hi");
-    var y = 10 * x;
-    print(y);
+var i = 0;
+while (i <= 10) {
+    print(i);
+    i = i + 1;
 }

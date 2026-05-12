@@ -34,11 +34,29 @@ ValueStore Evaluator::evaluateBinary(ASTNode* node)
         return {valueA.valueType, valueA.value.integer * valueB.value.integer};
     case FRONT_SLASH:
         return {valueA.valueType, valueA.value.integer / valueB.value.integer};
+    case LESS_THAN:
+        return {valueA.valueType, valueA.value.integer < valueB.value.integer};
+    case LESS_THAN_EQUAL:
+        return {valueA.valueType, valueA.value.integer <= valueB.value.integer};
+    case GREATER_THAN:
+        return {valueA.valueType, valueA.value.integer > valueB.value.integer};
+    case GREATER_THAN_EQUAL:
+        return {valueA.valueType, valueA.value.integer >= valueB.value.integer};
+    case EQUAL_EQUAL:
+        return {valueA.valueType, valueA.value.integer == valueB.value.integer};
     default:
         abort(); // We shouldn't be here
     }
 }
 
+ValueStore Evaluator::evaluateLoop(ASTNode* node)
+{
+    while (isTrue(evaluateNode(node -> firstChild)))
+    {
+        evaluateNode(node -> firstChild -> nextSibling);
+    }
+    return {NO_VALUE,0};
+}
 
 ValueStore Evaluator::evaluateNode(ASTNode* node)
 {
@@ -69,6 +87,8 @@ ValueStore Evaluator::evaluateNode(ASTNode* node)
         return node -> context.valueStore;
     case BRANCH_OP:
         return evaluateBranch(node);
+    case LOOP_OP:
+        return evaluateLoop(node);
     default:
         break;
     }
@@ -110,12 +130,10 @@ void Evaluator::evaluateChildren(ASTNode* node)
     }
 }
 
-
 void Evaluator::evaluateCode()
 {
     evaluateChildren(codeRoot);
 }
-
 
 void Evaluator::printValue(const ValueStore& v)
 {

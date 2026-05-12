@@ -16,8 +16,8 @@ enum TokenType
     // Identifiers: varName
     IDENTIFIER,
 
-    // Keywords: if else func var true false
-    IF, ELSE, FUNC, VAR,  PRINT,
+    // Keywords: if else func var true false while
+    IF, ELSE, FUNC, VAR, PRINT, WHILE,
 
     // Syntax Chars: ( ) { } ; ,
     OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY, CLOSE_CURLY, SEMICOLON, COMMA,
@@ -80,6 +80,7 @@ constexpr TokenType getTokenGroup(const TokenType t)
     case FUNC:
     case VAR:
     case PRINT:
+    case WHILE:
         return KEYWORD_TOKEN_GROUP;
     case TRUE:
     case FALSE:

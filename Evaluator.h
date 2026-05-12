@@ -16,6 +16,7 @@ private:
     ValueStore evaluateUnary(ASTNode* node);
     ValueStore evaluateNode(ASTNode* node);
     ValueStore evaluateBranch(ASTNode* node);
+    ValueStore evaluateLoop(ASTNode* node);
     void evaluateChildren(ASTNode* node);
 
     static void printValue(const ValueStore& v);

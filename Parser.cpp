@@ -29,6 +29,7 @@ ASTNode* Parser::parseStatement()
     if ((statement = parsePrint())) return statement;
     if ((statement = parseAssignment())) return statement;
     if ((statement = parseBranch())) return statement;
+    if ((statement = parseLoop())) return statement;
     //return parseDeclaration() || parseAssignment() || parseBranch();
     return nullptr;
 }
@@ -189,8 +190,22 @@ ASTNode* Parser::parseBranch()
     return branch;
 }
 
+ASTNode* Parser::parseWhile()
+{
+    if (glanceToken() != WHILE) return nullptr;
+    eatToken();
+    ASTNode* condition = expect(parseExprClosed());
+    ASTNode* body = expect(parseBlock());
+    condition -> nextSibling = body;
+    return new ASTNode{condition, nullptr, LOOP_OP, WHILE,};
+}
 
-
+ASTNode* Parser::parseLoop()
+{
+    ASTNode* loop;
+    if ((loop = parseWhile())) return loop;
+    return nullptr;
+}
 
 
 
