@@ -132,7 +132,8 @@ TokenType Lexer::getKeywordType(unsigned int start, unsigned int size) const
 
 void Lexer::addToken(const TokenType type, const unsigned int contentOffset, const unsigned int contentSize)
 {
-    auto* newToken = new Token{nullptr, type, std::string(&text[contentOffset], contentSize)};
+    Position pos = Position{lineCount, contentOffset - lineOffset};
+    auto* newToken = new Token{nullptr, type, std::string(&text[contentOffset], contentSize), pos};
     if (tokensRoot == nullptr)
     {
         tokensRoot = newToken;
@@ -149,28 +150,35 @@ void Lexer::addToken(const TokenType type, const unsigned int contentOffset, con
 void Lexer::updateBuildMode(char c, unsigned int &buildStart, TokenBuildingMode &buildingMode)
 {
     if (isWhitespace(c))
+    {
+        if (c == '\n')
+        {
+            lineCount++;
+            lineOffset = text.size();
+        }
         buildingMode = BUILDING_NONE;
+    }
     else if (isOperator(c))
     {
         buildingMode = BUILDING_OPERATOR;
-        buildStart = text.size(); // Note: text.size is to-be index of cur char
+        buildStart = text.size() - 1; // Note: text.size is to-be index of cur char
     } else if (isNumber(c))
     {
         buildingMode = BUILDING_NUMBER;
-        buildStart = text.size();
+        buildStart = text.size() - 1;
     } else if (c == '"')
     {
         buildingMode = BUILDING_STRING;
-        buildStart = text.size() + 1; // quote not included in token
+        buildStart = text.size(); // quote not included in token
     } else if (isSyntax(c))
     {
-        const unsigned int offset = text.size();
+        const unsigned int offset = text.size() - 1;
         addToken(getSyntaxType(c), offset, 1);
         buildingMode = BUILDING_NONE;
     } else if (isLetter(c))
     {
         buildingMode = BUILDING_KEYWORD_OR_IDENTIFIER; // keywords or identifiers can't be discerned immediately
-        buildStart = text.size();
+        buildStart = text.size() - 1;
     } else // Invalid char?
     {
         std::cerr << "Invalid char";
@@ -178,18 +186,17 @@ void Lexer::updateBuildMode(char c, unsigned int &buildStart, TokenBuildingMode 
     }
 }
 
-// Note for future: when token is created but c hasn't been pushed,
-// there is temporarily a token referencing char outside of vector,
-// if something happens between token creation and vector add c,
-// could cause out-of-bounds access
 void Lexer::processChar(char c, unsigned int &buildStart, TokenBuildingMode &buildingMode)
 {
+    int textIndex = text.size();
+    text.push_back(c);
+
     switch (buildingMode)
     {
     case BUILDING_NUMBER:
         if (!isNumber(c)) // End of number
         {
-            const unsigned int size = text.size() - buildStart;
+            const unsigned int size = textIndex - buildStart;
             addToken(NUMBER, buildStart, size);
             updateBuildMode(c, buildStart, buildingMode);
         }
@@ -197,7 +204,7 @@ void Lexer::processChar(char c, unsigned int &buildStart, TokenBuildingMode &bui
     case BUILDING_STRING:
         if (c == '"') // End of string
         {
-            const unsigned int size = text.size() - buildStart;
+            const unsigned int size = textIndex - buildStart;
             addToken(STRING, buildStart, size);
             buildingMode = BUILDING_NONE;
         }
@@ -205,14 +212,14 @@ void Lexer::processChar(char c, unsigned int &buildStart, TokenBuildingMode &bui
     case BUILDING_OPERATOR:
         if (!isOperator(c)) // End of operator
         {
-            unsigned int size = text.size() - buildStart;
+            unsigned int size = textIndex - buildStart;
             TokenType type = getOperatorType(buildStart, size);
             if (type == INVALID)
             {
                 // If token is not valid operator try splitting into to ops: a==!b: "==!" is invalid, but == and ! are valid
                 size--;
                 type = getOperatorType(buildStart, size);
-                const unsigned int secondTokenIndex = text.size() - 1;
+                const unsigned int secondTokenIndex = textIndex - 1;
                 const TokenType secondType = getOperatorType(secondTokenIndex, 1);
                 addToken(type, buildStart, size);
                 addToken(secondType, secondTokenIndex, 1);
@@ -227,7 +234,7 @@ void Lexer::processChar(char c, unsigned int &buildStart, TokenBuildingMode &bui
     case BUILDING_KEYWORD_OR_IDENTIFIER:
         if (!isLetter(c) && !isNumber(c)) // end of keyword/operator
         {
-            unsigned int size = text.size() - buildStart;
+            unsigned int size = textIndex - buildStart;
             TokenType type = getKeywordType(buildStart, size);
             if (type == INVALID) type = IDENTIFIER; // if not keyword, assume identifier
             addToken(type, buildStart, size);
@@ -238,7 +245,6 @@ void Lexer::processChar(char c, unsigned int &buildStart, TokenBuildingMode &bui
     default:
         updateBuildMode(c, buildStart, buildingMode);
     }
-    text.push_back(c);
 }
 
 Lexer::Lexer(std::basic_istream<char> &stream)

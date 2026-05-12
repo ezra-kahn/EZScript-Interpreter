@@ -1,8 +1,3 @@
-a + b * 2+
-
-
-var test = 10;
-var y = test + 3;
-if (y != test) {
-    print("hello" + test);
-}
+var x = 5;
+var y = 2 * x;
+print(

@@ -41,7 +41,6 @@ enum TokenType
     SYNTAX_TOKEN_GROUP,
     KEYWORD_TOKEN_GROUP,
     LITERAL_TOKEN_GROUP,
-    IDENTIFIER_TOKEN_GROUP,
     NO_TOKEN_GROUP,
     ANY_TOKEN_GROUP,
 };
@@ -76,8 +75,6 @@ constexpr TokenType getTokenGroup(const TokenType t)
     case TILDE:
     case CARET:
         return UNARY_TOKEN_GROUP;
-    case IDENTIFIER:
-        return IDENTIFIER_TOKEN_GROUP;
     case IF:
     case ELSE:
     case FUNC:
@@ -97,14 +94,21 @@ constexpr TokenType getTokenGroup(const TokenType t)
     case COMMA:
         return SYNTAX_TOKEN_GROUP;
     default:
-        return NO_TOKEN_GROUP;
+        return t;
     }
 }
+
+struct Position
+{
+    unsigned int line;
+    unsigned int column;
+};
 
 struct Token {
     Token* nextToken;
     TokenType type;
     std::string text;
+    Position position;
 };
 
 class Lexer {
@@ -120,7 +124,8 @@ private:
         BUILDING_KEYWORD_OR_IDENTIFIER,
         BUILDING_OPERATOR,
     };
-
+    unsigned int lineOffset = 0;
+    unsigned int lineCount = 0;
     std::vector<char> text;
     Token* tokensRoot;
     Token* lastToken;
